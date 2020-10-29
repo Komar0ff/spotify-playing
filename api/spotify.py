@@ -18,18 +18,12 @@ SPOTIFY_REFRESH_TOKEN = os.getenv("SPOTIFY_REFRESH_TOKEN")
 
 REFRESH_TOKEN_URL = "https://accounts.spotify.com/api/token"
 NOW_PLAYING_URL = "https://api.spotify.com/v1/me/player/currently-playing"
-RECENTLY_PLAYING_URL = (
-    "https://api.spotify.com/v1/me/player/recently-played?limit=10"
-)
 
 app = Flask(__name__)
 
 
 def getAuth():
-    return b64encode(f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_SECRET_ID}".encode()).decode(
-        "ascii"
-    )
-
+    return b64encode(f"{SPOTIFY_CLIENT_ID}:{SPOTIFY_SECRET_ID}".encode()).decode("ascii")
 
 def refreshToken():
     data = {
@@ -93,29 +87,22 @@ def makeSVG(data):
     barCSS = barGen(barCount)
 
     if data == {} or data["item"] == "None":
-        contentBar = "" #Shows/Hides the EQ bar if no song is currently playing
-        currentStatus = "Was playing:"
-        recentPlays = recentlyPlayed()
-        recentPlaysLength = len(recentPlays["items"])
-        itemIndex = random.randint(0, recentPlaysLength - 1)
-        item = recentPlays["items"][itemIndex]["track"]
+        return render_template("nothing.html.j2")
     else:
         item = data["item"]
-        currentStatus = "Vibing to:"
-    image = loadImageB64(item["album"]["images"][1]["url"])
-    artistName = item["artists"][0]["name"].replace("&", "&amp;")
-    songName = item["name"].replace("&", "&amp;")
+        image = loadImageB64(item["album"]["images"][1]["url"])
+        artistName = item["artists"][0]["name"].replace("&", "&amp;")
+        songName = item["name"].replace("&", "&amp;")
 
-    dataDict = {
-        "contentBar": contentBar,
-        "barCSS": barCSS,
-        "artistName": artistName,
-        "songName": songName,
-        "image": image,
-        "status": currentStatus,
-    }
+        dataDict = {
+            "contentBar": contentBar,
+            "barCSS": barCSS,
+            "artistName": artistName,
+            "songName": songName,
+            "image": image
+        }
 
-    return render_template("spotify.html.j2", **dataDict)
+        return render_template("spotify.html.j2", **dataDict)
 
 
 @app.route("/", defaults={"path": ""})
